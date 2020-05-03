@@ -65,7 +65,7 @@
                           "~/org/tickler.org"))
   (setq org-capture-templates `(("t" "Todo [inbox]" entry
                                 (file+headline "~/org/inbox.org" "Tasks")
-                                "* TODO %? \n %U")
+                                "* TODO %? \n :PROPERTIES:\n :CREATED_AT: %U\n :END:")
                                 ("n" "Note [inbox]" entry
                                 (file+headline "~/org/inbox.org" "Notes")
                                 "* %i%? \n %U")
