@@ -59,33 +59,54 @@
 (global-visual-line-mode 0)
 
 ;; Org Mode
-;; Look here for agenda files
-(setq org-agenda-files '("~/org"))
-;; Add timestamp and optional note when completing todo.
-(setq org-log-done 'time)
-;; Org Journal
-;; Set journal directory with subdirectory of current year.
-(setq org-journal-dir (format-time-string "~/org/journal/%Y/"))
-;; Journal filename format of YYYY-MM-DD
-(setq org-journal-file-format "%Y-%m-%d.org")
+(after! org
+  (setq org-agenda-files '("~/org/inbox.org"
+                          "~/org/gtd.org"
+                          "~/org/tickler.org"))
+  (setq org-capture-templates `(("t" "Todo [inbox]" entry
+                                (file+headline "~/org/inbox.org" "Tasks")
+                                "* TODO %? \n %U")
+                                ("n" "Note [inbox]" entry
+                                (file+headline "~/org/inbox.org" "Notes")
+                                "* %i%? \n %U")
+                                ("T" "Tickler" entry
+                                (file+headline "~/org/tickler.org" "Tickler")
+                                "* %i%? \n %U")
+                                ("j" "Journal" entry
+                                 (file+headline ,(format-time-string "~/org/journal/%Y/%Y-%m-%d.org")
+                                       ,(format-time-string "%A, %m/%d/%Y"))
+                                ,(format-time-string "* %I:%M %p \n %?"))))
+  (setq org-todo-keywords '((sequence "TODO(t)" "START(s)" "WAITING(w)" "|" "DONE(d)")))
+  (setq org-todo-keyword-faces
+    '(("START" . "#FFB269")
+      ("WAITING" . "#FFDA69")))
+  (setq org-directory "~/org/")
+  (setq org-archive-location "%s_archive::datetree/* Archived Tasks"))
 
-;; Kill buffer after saving journal.
-(defun org-journal-save-entry-and-exit()
-  "Simple convenience function.
-  Saves the buffer of the current day's entry and kills the window
-  Similar to org-capture like behavior"
+(defun org-archive-done-tasks ()
   (interactive)
-  (save-buffer)
-  (kill-buffer-and-window))
-(map!
-  (:after org-journal
-    (:map org-journal-mode-map "C-x C-s" #'org-journal-save-entry-and-exit)))
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'file))
+
+;; Orb Mobile
+;; Set to the name of the file where new notes will be stored
+(setq org-mobile-inbox-for-pull "~/org/mobile.org")
+;; Set to <your Dropbox root directory>/MobileOrg.
+(setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+;; org-mobile-push hotkeys.
+(global-set-key (kbd "C-c y") 'org-mobile-push)
+
+;; Add timestamp when completing todo.
+(setq org-log-done 'time)
 
 
 ;; Intialize Company Mode
 (add-hook 'after-init-hook 'global-company-mode)
 
-(setq company-idle-delay 0)
+(setq company-idle-delay 1)
 (setq company-minimum-prefix-length 2)
 
 ;; Map C-c C-o to start python interpreter
@@ -94,4 +115,12 @@
   (:map python-mode-map
     "C-c C-o" #'run-python)))
 
-(add-hook 'csv-mode-hook visual-line-mode 0)
+
+;; Grep files in directory and show results in dired.
+(global-set-key (kbd "C-x C-g") 'helm-do-ag)
+;; Search for files by name in a given directory.
+(global-set-key (kbd "C-c C-g") 'helm-for-files)
+
+;; Press enter in evil-normal-mode to insert a newline.
+(with-eval-after-load 'evil-maps
+  (define-key evil-motion-state-map (kbd "RET") nil))
