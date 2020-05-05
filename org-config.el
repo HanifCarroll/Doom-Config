@@ -51,8 +51,14 @@
 ;; Set to <your Dropbox root directory>/MobileOrg.
 (setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
 
-;; org-mobile-push hotkeys.
+;; org-mobile-push hotkey.
 (global-set-key (kbd "C-c y") 'org-mobile-push)
+
+;; Daily work journal hotkey.
+(defun my/daily-work-file ()
+  "Open work related org file for the day."
+  (find-file (format-time-string "~/org/cisco/daily-tasks/%F.org")))
+(global-set-key (kbd "C-x w") (lambda () (interactive) (my/daily-work-file)))
 
 ;; Add timestamp when completing todo.
 (setq org-log-done 'time)
