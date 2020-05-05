@@ -39,9 +39,10 @@
 (map!
  (:after python
   (:map python-mode-map
-    "C-c C-o" #'run-python)
-  ;; Tab for autocomplete
-  (define-key python-mode-map "\t" 'company-complete-common)))
+    "C-c C-o" #'run-python)))
+
+;; Tab for autocomplete
+(define-key global-map "\t" 'company-complete-common)
 
 ;; Grep files in directory and show results in dired.
 (global-set-key (kbd "C-x C-g") 'helm-do-ag)
@@ -55,3 +56,4 @@
 ;; Open git diff in a popup window.
 (map! :leader
       :desc "Show diff in popup." "g p" #'git-gutter:popup-hunk)
+
